@@ -39,5 +39,5 @@ class User(AbstractUser):
         first two sections does indeed produce the third section."""
 
         return jwt.encode({
-         "sub": self.id, "name": self.username, "iat": int(time.time())
+         "sub": self.id, "name": self.email, "iat": int(time.time())
         }, settings.SECRET_KEY, algorithm="HS256").decode()

@@ -24,5 +24,5 @@ class UserTests(TestCase):
         token = user.create_jwt()
         token = jwt.decode(token, settings.SECRET_KEY)
         self.assertEqual(token["sub"], user.id)
-        self.assertEqual(token["name"], user.username)
+        self.assertEqual(token["name"], user.email)
         self.assertLessEqual(time.time() - token["iat"], 2)

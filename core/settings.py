@@ -20,11 +20,14 @@ TIME_ZONE = "UTC"
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+TOKEN_TIMEOUT = 15
+
 AUTH_USER_MODEL = "core.User"
 
 MIDDLEWARE = [
  "django.middleware.common.CommonMiddleware",
  "corsheaders.middleware.CorsMiddleware",
+ "core.middleware.AuthenticationMiddleware",
 ]
 
 TEMPLATES = [{

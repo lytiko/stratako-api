@@ -1,0 +1,16 @@
+[
+    {
+        "model": "core.User",
+        "pk": 1,
+        "fields": {
+            "email": "sarah@gmail.com"
+        }
+    },
+    {
+        "model": "core.User",
+        "pk": 2,
+        "fields": {
+            "email": "guy@gmail.com"
+        }
+    }
+]
