@@ -10,6 +10,7 @@ ROOT_URLCONF = "core.urls"
 INSTALLED_APPS = [
  "django.contrib.contenttypes",
  "django.contrib.staticfiles",
+ "django.contrib.auth",
  "corsheaders",
  "core",
 ]
@@ -18,6 +19,8 @@ USE_TZ = True
 TIME_ZONE = "UTC"
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+AUTH_USER_MODEL = "core.User"
 
 MIDDLEWARE = [
  "django.middleware.common.CommonMiddleware",
