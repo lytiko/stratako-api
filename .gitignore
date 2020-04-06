@@ -2,5 +2,6 @@ __pycache__
 *.pyc
 .DS_Store
 *.sqlite3
+*.dat
 secrets.py
 create_local.py
