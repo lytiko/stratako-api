@@ -41,3 +41,16 @@ class User(AbstractUser):
         return jwt.encode({
          "sub": self.id, "name": self.email, "iat": int(time.time())
         }, settings.SECRET_KEY, algorithm="HS256").decode()
+
+
+
+class Goal(models.Model):
+    """A fundamental value in life."""
+
+    class Meta:
+        db_table = "goals"
+
+    name = models.CharField(max_length=256)
+    description = models.TextField()
+    order = models.IntegerField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)

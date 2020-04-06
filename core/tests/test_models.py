@@ -26,3 +26,17 @@ class UserTests(TestCase):
         self.assertEqual(token["sub"], user.id)
         self.assertEqual(token["name"], user.email)
         self.assertLessEqual(time.time() - token["iat"], 2)
+
+
+
+class GoalTests(TestCase):
+
+    def test_can_make_new_goal(self):
+        kwargs = {
+            "name": "Name", "description": "DDD",
+            "user": mixer.blend(User), "order": 1
+        }
+        goal = Goal.objects.create(**kwargs)
+        for arg in ["description"]:
+            args = {k: v for k, v in kwargs.items() if k != arg}
+            Goal.objects.create(**args)
