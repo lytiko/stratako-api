@@ -44,3 +44,7 @@ else:
      STATIC_ROOT = os.path.abspath(f"{BASE_DIR}/../static")
 MEDIA_URL = "/uploads/"
 SASS_PROCESSOR_ROOT = os.path.abspath(os.path.join(BASE_DIR, "core", "static"))
+
+GRAPHENE = {
+ "SCHEMA": "core.schema.schema"
+}

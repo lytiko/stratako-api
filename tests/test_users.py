@@ -92,3 +92,18 @@ class GraphqlProtectionTests(FunctionalTest):
         self.client.headers["Authorization"] = jwt.encode(token, settings.SECRET_KEY)
         result = self.client.execute("{user {email}}")
         self.assertEqual(result, {"error": "Unauthorized"})
+
+
+
+class UserQueryTests(FunctionalTest):
+
+    def test_can_get_user(self):
+        result = self.client.execute("{user {email}}")
+        self.assertEqual(result, {"data": {"user": {
+         "email": "sarah@gmail.com",
+        }}})
+    
+
+    def test_cant_get_protected_user_attributes(self):
+        result = self.client.execute("{user { password }}")
+        self.assertIn("Cannot query", result["errors"][0]["message"])
