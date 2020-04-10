@@ -1,7 +1,7 @@
 import graphene
 from graphene_django.types import DjangoObjectType
 from graphene.relay import Connection, ConnectionField
-from .models import User, Goal
+from .models import User, Goal, GoalCategory
 from .schema import Datetime
 
 def get_filter_arguments(Model):
@@ -64,6 +64,29 @@ class Countable:
 
 
 
+class HasGoalCategories:
+    """An object type with goal categories."""
+
+    goal_category = graphene.Field(
+        "core.queries.GoalCategoryType", id=graphene.String(required=True)
+    )
+    goal_categories = ConnectionField(
+        "core.queries.GoalCategoryConnection", **get_filter_arguments(GoalCategory)
+    )
+
+    def resolve_goal_category(self, info, **kwargs):
+        try:
+            return self.goal_categories.get(id=int(kwargs["id"]))
+        except AttributeError: return self.iterable.goal_categories.get(id=kwargs["id"])
+    
+
+    def resolve_goal_categories(self, context, **kwargs):
+        try:
+            return get_objects(self.goal_categories, kwargs)
+        except AttributeError: return get_objects(self.iterable.goal_categories, kwargs)
+
+
+
 class HasGoals:
     """An object type with goals."""
 
@@ -71,13 +94,14 @@ class HasGoals:
         "core.queries.GoalType", id=graphene.String(required=True)
     )
     goals = ConnectionField(
-        "core.queries.GoalConnection", **get_filter_arguments(Goal)
+        "core.queries.GoalConnection",
+        **get_filter_arguments(Goal)
     )
 
     def resolve_goal(self, info, **kwargs):
         try:
-            return self.goals.get(id=int(kwargs["id"]))
-        except AttributeError: return self.iterable.goals.get(id=kwargs["id"])
+            return self.goals.get(id=kwargs["id"])
+        except AttributeError: return self.iterable.goals.get(id=int(kwargs["id"]))
     
 
     def resolve_goals(self, context, **kwargs):
@@ -86,6 +110,16 @@ class HasGoals:
         except AttributeError: return get_objects(self.iterable.goals, kwargs)
 
         
+
+class GoalCategoryType(HasGoals, DjangoObjectType):
+    """A lytiko GoalCategory."""
+
+    class Meta:
+        model = GoalCategory
+        exclude_fields = []
+    
+    id = graphene.ID()
+
 
 
 class GoalType(DjangoObjectType):
@@ -99,6 +133,14 @@ class GoalType(DjangoObjectType):
 
 
 
+class GoalCategoryConnection(Countable, HasGoals, Connection):
+    """A list of GoalCategories."""
+
+    class Meta:
+        node = GoalCategoryType
+
+
+
 class GoalConnection(Countable, Connection):
     """A list of Goals."""
 
@@ -107,7 +149,17 @@ class GoalConnection(Countable, Connection):
 
 
 
-class UserType(HasGoals, DjangoObjectType):
+
+
+
+
+
+
+
+
+
+
+class UserType(HasGoalCategories, HasGoals, DjangoObjectType):
     """The user object type. Most other objects are accessed via this object."""
     
     class Meta:

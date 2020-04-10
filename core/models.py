@@ -41,6 +41,13 @@ class User(AbstractUser):
         return jwt.encode({
          "sub": self.id, "name": self.email, "iat": int(time.time())
         }, settings.SECRET_KEY, algorithm="HS256").decode()
+    
+
+    @property
+    def goals(self):
+        """All goal objects associated with this user."""
+
+        return Goal.objects.filter(category__user=self)
 
 
 

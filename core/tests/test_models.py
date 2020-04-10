@@ -26,6 +26,16 @@ class UserTests(TestCase):
         self.assertEqual(token["sub"], user.id)
         self.assertEqual(token["name"], user.email)
         self.assertLessEqual(time.time() - token["iat"], 2)
+    
+
+    def test_user_goals(self):
+        user = mixer.blend(User)
+        c1, c2 = mixer.blend(GoalCategory, user=user), mixer.blend(GoalCategory)
+        g1 = mixer.blend(Goal, category=c1, value=10)
+        g2 = mixer.blend(Goal, category=c1, value=15)
+        g3 = mixer.blend(Goal, category=c2)
+        g4 = mixer.blend(Goal, category=c2)
+        self.assertEqual(set(user.goals.all()), {g1, g2})
 
 
 
