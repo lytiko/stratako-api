@@ -29,12 +29,26 @@ class UserTests(TestCase):
 
 
 
+class GoalCategoryTests(TestCase):
+
+    def test_can_make_new_goal_category(self):
+        kwargs = {
+            "name": "Name", "description": "DDD",
+            "user": mixer.blend(User), "order": 1
+        }
+        category = GoalCategory.objects.create(**kwargs)
+        for arg in ["description"]:
+            args = {k: v for k, v in kwargs.items() if k != arg}
+            GoalCategory.objects.create(**args)
+
+
+
 class GoalTests(TestCase):
 
     def test_can_make_new_goal(self):
         kwargs = {
             "name": "Name", "description": "DDD",
-            "user": mixer.blend(User), "order": 1
+            "category": mixer.blend(GoalCategory), "order": 1
         }
         goal = Goal.objects.create(**kwargs)
         for arg in ["description"]:

@@ -44,6 +44,22 @@ class User(AbstractUser):
 
 
 
+class GoalCategory(models.Model):
+    """A grouping of goals."""
+
+    class Meta:
+        db_table = "goal-categories"
+    
+    name = models.CharField(max_length=256)
+    description = models.TextField()
+    order = models.IntegerField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="goal_categories")
+
+    def __str__(self):
+        return self.name
+
+
+
 class Goal(models.Model):
     """A fundamental value in life."""
 
@@ -53,7 +69,7 @@ class Goal(models.Model):
     name = models.CharField(max_length=256)
     description = models.TextField()
     order = models.IntegerField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="goals")
+    category = models.ForeignKey(GoalCategory, on_delete=models.CASCADE, related_name="goals")
 
     def __str__(self):
         return self.name
