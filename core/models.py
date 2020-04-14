@@ -56,6 +56,7 @@ class GoalCategory(models.Model):
 
     class Meta:
         db_table = "goal-categories"
+        verbose_name_plural = "goal_categories"
     
     name = models.CharField(max_length=256)
     description = models.TextField()
