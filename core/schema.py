@@ -49,10 +49,13 @@ class Query(graphene.ObjectType):
 
 
 
-from core.mutations import DeleteGoalCategory, DeleteGoal
+from core.mutations import SwapGoalCategories, DeleteGoalCategory, SwapGoals, DeleteGoal
 class Mutation(graphene.ObjectType):
 
+    swap_goal_categories = SwapGoalCategories.Field()
     delete_goal_category = DeleteGoalCategory.Field()
+
+    swap_goals = SwapGoals.Field()
     delete_goal = DeleteGoal.Field()
     
 

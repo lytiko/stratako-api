@@ -57,6 +57,7 @@ class GoalCategory(models.Model):
     class Meta:
         db_table = "goal-categories"
         verbose_name_plural = "goal_categories"
+        ordering = ["order"]
     
     name = models.CharField(max_length=256)
     description = models.TextField()
@@ -65,6 +66,13 @@ class GoalCategory(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def swap_with(self, category):
+        """Swaps order of two goal categories."""
+
+        self.order, category.order = category.order, self.order
+        self.save()
+        category.save()
 
 
 
@@ -73,6 +81,7 @@ class Goal(models.Model):
 
     class Meta:
         db_table = "goals"
+        ordering = ["order"]
 
     name = models.CharField(max_length=256)
     description = models.TextField()
@@ -81,3 +90,10 @@ class Goal(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def swap_with(self, goal):
+        """Swaps order of two goals."""
+
+        self.order, goal.order = goal.order, self.order
+        self.save()
+        goal.save()
