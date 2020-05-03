@@ -33,17 +33,24 @@ class MoveGoal(graphene.Mutation):
     class Arguments:
         goal = graphene.String(required=True)
         index = graphene.Int(required=True)
+        category = graphene.String()
     
     goals = ConnectionField(
         "core.queries.GoalConnection", **get_filter_arguments(Goal)
+    )
+    goal_categories = ConnectionField(
+        "core.queries.GoalCategoryConnection", **get_filter_arguments(GoalCategory)
     )
 
     def mutate(self, info, **kwargs):
         import time
         time.sleep(2)
         goal = info.context.user.goals.get(id=kwargs["goal"])
-        goal.move_to_index(kwargs["index"])
-        return MoveGoal(goals=goal.category.goals.all())
+        goal.move(kwargs["index"], kwargs.get("category"))
+        return MoveGoal(
+            goals=goal.category.goals.all(),
+            goal_categories=info.context.user.goal_categories.all()
+        )
 
 
 

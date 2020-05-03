@@ -3,7 +3,7 @@
 import os
 import jwt
 import time
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 
@@ -85,12 +85,20 @@ class Goal(models.Model):
         return self.name
 
 
-    def move_to_index(self, index):
-        """Moves a goal to a new index."""
+    def move(self, index, category=None):
+        """Moves a goal to a new index and, if desired, category."""
 
-        self.index = index
-        goals = list(self.category.goals.exclude(id=self.id))
+        source_category = destination_category = self.category
+        if category is not None:
+            destination_category = self.category.user.goal_categories.get(id=category)
+            self.category = destination_category
+            self.save()
+        goals = list(destination_category.goals.exclude(id=self.id))
         goals.insert(index, self)
         for index, goal in enumerate(goals):
             goal.order = index
-        for goal in goals: goal.save()
+        Goal.objects.bulk_update(goals, ["order"], batch_size=100)
+        if category is not None:
+            for index, goal in enumerate(source_category.goals.all()):
+                goal.order = index
+            Goal.objects.bulk_update(goals, ["order"], batch_size=100)
