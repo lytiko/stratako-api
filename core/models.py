@@ -66,13 +66,6 @@ class GoalCategory(models.Model):
 
     def __str__(self):
         return self.name
-    
-    def swap_with(self, category):
-        """Swaps order of two goal categories."""
-
-        self.order, category.order = category.order, self.order
-        self.save()
-        category.save()
 
 
 
@@ -90,10 +83,14 @@ class Goal(models.Model):
 
     def __str__(self):
         return self.name
-    
-    def swap_with(self, goal):
-        """Swaps order of two goals."""
 
-        self.order, goal.order = goal.order, self.order
-        self.save()
-        goal.save()
+
+    def move_to_index(self, index):
+        """Moves a goal to a new index."""
+
+        self.index = index
+        goals = list(self.category.goals.exclude(id=self.id))
+        goals.insert(index, self)
+        for index, goal in enumerate(goals):
+            goal.order = index
+        for goal in goals: goal.save()

@@ -64,3 +64,25 @@ class GoalTests(TestCase):
         for arg in ["description"]:
             args = {k: v for k, v in kwargs.items() if k != arg}
             Goal.objects.create(**args)
+    
+
+    def test_can_swap_goals(self):
+        category = mixer.blend(GoalCategory)
+        g1 = mixer.blend(Goal, order=0, category=category)
+        g2 = mixer.blend(Goal, order=1, category=category)
+        g3 = mixer.blend(Goal, order=2, category=category)
+        g4 = mixer.blend(Goal, order=3, category=category)
+        g5 = mixer.blend(Goal, order=4, category=category)
+        g6 = mixer.blend(Goal, order=5, category=category)
+        g7 = mixer.blend(Goal, order=3)
+        g4.move_to_index(2)
+        goals = list(category.goals.all())
+        self.assertEqual(goals[0].id, g1.id)
+        self.assertEqual(goals[1].id, g2.id)
+        self.assertEqual(goals[2].id, g4.id)
+        self.assertEqual(goals[3].id, g3.id)
+        self.assertEqual(goals[4].id, g5.id)
+        self.assertEqual(goals[5].id, g6.id)
+        g7.refresh_from_db()
+        self.assertEqual(g7.order, 3)
+        self.assertEqual([g.order for g in goals], [0, 1, 2, 3, 4, 5])
