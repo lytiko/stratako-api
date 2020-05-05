@@ -72,6 +72,8 @@ class GoalCategory(models.Model):
 class Goal(models.Model):
     """A fundamental value in life."""
 
+    user_paths = ["category__user"]
+
     class Meta:
         db_table = "goals"
         ordering = ["order"]

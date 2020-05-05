@@ -160,3 +160,11 @@ class LoginForm(forms.Form):
             if user: return user
         self.add_error("email", "Invalid credentials.")
         return False
+
+
+
+class GoalForm(StratakoForm):
+    
+    class Meta:
+        model = Goal
+        exclude = ["id", "order", "goal_category"]

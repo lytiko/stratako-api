@@ -13,6 +13,21 @@ def delete(user, Model, data, Mutation):
     return Mutation(success=True)
 
 
+def update(user, Form, data, Mutation):
+    """Updates an object and returns the relevant GraphQL object."""
+
+    instance = getattr(
+        user, Form._meta.model._meta.verbose_name_plural.replace(" ", "_")
+    ).get(id=data["id"])
+    form = Form(data=data, instance=instance)
+    if form.is_valid():
+        form.save()
+        return Mutation(**{[k for k, v in Mutation.__dict__.items()
+         if isinstance(v, graphene.Field)][0]: form.instance})
+    else:
+        raise GraphQLError(list(form.errors.values())[0][0])
+
+
 
 class DeleteGoalCategory(graphene.Mutation):
     """Deletes a goal category."""
@@ -25,6 +40,19 @@ class DeleteGoalCategory(graphene.Mutation):
     def mutate(self, info, **kwargs):
         return delete(info.context.user, GoalCategory, kwargs, DeleteGoalCategory)
 
+
+
+class UpdateGoal(graphene.Mutation):
+
+    class Arguments:
+        id = graphene.String(required=True)
+        name = graphene.String()
+        description = graphene.String()
+    
+    goal = graphene.Field("core.queries.GoalType")
+
+    def mutate(self, info, **kwargs):
+        return update(info.context.user, GoalForm, kwargs, UpdateGoal)
 
 
 class MoveGoal(graphene.Mutation):
@@ -43,8 +71,6 @@ class MoveGoal(graphene.Mutation):
     )
 
     def mutate(self, info, **kwargs):
-        import time
-        time.sleep(2)
         goal = info.context.user.goals.get(id=kwargs["goal"])
         goal.move(kwargs["index"], kwargs.get("category"))
         return MoveGoal(
