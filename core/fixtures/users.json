@@ -3,14 +3,18 @@
         "model": "core.User",
         "pk": 1,
         "fields": {
-            "email": "sarah@gmail.com"
+            "email": "sarah@gmail.com",
+            "first_name": "Sarah",
+            "last_name": "Jones"
         }
     },
     {
         "model": "core.User",
         "pk": 2,
         "fields": {
-            "email": "guy@gmail.com"
+            "email": "guy@gmail.com",
+            "first_name": "Guy",
+            "last_name": "Fawkes"
         }
     }
 ]

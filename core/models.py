@@ -1,25 +1,52 @@
-"""Core models needed for stratako functionality."""
-
-import os
 import jwt
 import time
-from django.db import models, transaction
+from random import randint
 from django.conf import settings
+from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-class User(AbstractUser):
-    """The user account model. The email serves as the username."""
+class BigIdModel(models.Model):
+    """Provides a custom ID primary key field - a random 15 digit integer."""
+
+    class Meta:
+        abstract = True
+
+    id = models.BigIntegerField(primary_key=True)
+
+    def save(self, *args, **kwargs):
+        """If the user hasn't provided an ID, generate one at random and check
+        that it has not been taken."""
+        
+        digits = 18
+        if not self.id:
+            is_unique = False
+            while not is_unique:
+                id = randint(10 ** (digits - 1), 10 ** digits)
+                is_unique = not self.__class__.objects.filter(id=id).exists()
+            self.id = id
+        super(BigIdModel, self).save(*args, **kwargs)
+
+
+
+class User(AbstractUser, BigIdModel):
+    """The user account model. Users require an email address as a username."""
 
     class Meta:
         db_table = "users"
-
-    username = None
+    
     email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=128)
+    last_name = models.CharField(max_length=128)
+    username = None
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+    is_staff = is_active = is_superuser = None
 
-    user_paths = [""]
 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.email})"
+        
+    
     def create_jwt(self):
         """Creates a JWT token for the user at the current UTC time.
         
@@ -39,68 +66,5 @@ class User(AbstractUser):
         first two sections does indeed produce the third section."""
 
         return jwt.encode({
-         "sub": self.id, "name": self.email, "iat": int(time.time())
+            "sub": self.id, "iat": int(time.time())
         }, settings.SECRET_KEY, algorithm="HS256").decode()
-    
-
-    @property
-    def goals(self):
-        """All goal objects associated with this user."""
-
-        return Goal.objects.filter(category__user=self)
-
-
-
-class GoalCategory(models.Model):
-    """A grouping of goals."""
-
-    class Meta:
-        db_table = "goal-categories"
-        verbose_name_plural = "goal_categories"
-        ordering = ["order"]
-    
-    name = models.CharField(max_length=256)
-    description = models.TextField()
-    order = models.IntegerField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="goal_categories")
-
-    def __str__(self):
-        return self.name
-
-
-
-class Goal(models.Model):
-    """A fundamental value in life."""
-
-    user_paths = ["category__user"]
-
-    class Meta:
-        db_table = "goals"
-        ordering = ["order"]
-
-    name = models.CharField(max_length=256)
-    description = models.TextField()
-    order = models.IntegerField()
-    category = models.ForeignKey(GoalCategory, on_delete=models.CASCADE, related_name="goals")
-
-    def __str__(self):
-        return self.name
-
-
-    def move(self, index, category=None):
-        """Moves a goal to a new index and, if desired, category."""
-
-        source_category = destination_category = self.category
-        if category is not None:
-            destination_category = self.category.user.goal_categories.get(id=category)
-            self.category = destination_category
-            self.save()
-        goals = list(destination_category.goals.exclude(id=self.id))
-        goals.insert(index, self)
-        for index, goal in enumerate(goals):
-            goal.order = index
-        Goal.objects.bulk_update(goals, ["order"], batch_size=100)
-        if category is not None:
-            for index, goal in enumerate(source_category.goals.all()):
-                goal.order = index
-            Goal.objects.bulk_update(goals, ["order"], batch_size=100)

@@ -3,6 +3,7 @@ from contextlib import redirect_stderr
 import kirjava
 from datetime import datetime
 from freezegun import freeze_time
+from unittest.mock import Mock, patch
 from django.test.utils import override_settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from core.models import User
@@ -14,18 +15,22 @@ class FunctionalTest(StaticLiveServerTestCase):
     ]
 
     def setUp(self):
+        self.request = Mock(method="POST")
+        self.patch1 = patch("requests.post")
+        self.patch1.start()
         self.freezer = freeze_time("2000-01-14 15:00:00") #UTC time
         self.freezer.start()
         self.user = User.objects.get(email="sarah@gmail.com")
         self.user.set_password("password")
         self.user.save()
-        self.client = kirjava.Client(self.live_server_url)
+        self.client = kirjava.Client(self.live_server_url + "/graphql")
         self.client.headers["Accept"] = "application/json"
         self.client.headers["Content-Type"] = "application/json"
         self.client.headers["Authorization"] = self.user.create_jwt()
     
 
     def tearDown(self):
+        self.patch1.stop()
         self.freezer.stop()
     
 

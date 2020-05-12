@@ -1,1 +1,1 @@
-# strakato API
+# Stratako API

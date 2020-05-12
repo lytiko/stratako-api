@@ -1,7 +1,12 @@
 __pycache__
 *.pyc
-.DS_Store
 *.sqlite3
-*.dat
 secrets.py
+*.dat
+import_*.py
+dump.json
 create_local.py
+create_random.py
+.DS_Store
+.vscode
+get-token.sh

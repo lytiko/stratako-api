@@ -1,5 +1,5 @@
 django==2.2.12
-mixer
-django-cors-headers
+django_cors_headers
+graphene_django==2.8.2
 pyjwt
-graphene_django
+requests
