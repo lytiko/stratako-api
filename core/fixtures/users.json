@@ -5,7 +5,9 @@
         "fields": {
             "email": "sarah@gmail.com",
             "first_name": "Sarah",
-            "last_name": "Jones"
+            "last_name": "Jones",
+            "timezone": "Africa/Asmera",
+            "day_ends": 2
         }
     },
     {
@@ -14,7 +16,9 @@
         "fields": {
             "email": "guy@gmail.com",
             "first_name": "Guy",
-            "last_name": "Fawkes"
+            "last_name": "Fawkes",
+            "timezone": "",
+            "day_ends": 0
         }
     }
 ]

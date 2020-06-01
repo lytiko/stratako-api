@@ -92,9 +92,12 @@ class LoginTests(FunctionalTest):
 class UserQueryTests(FunctionalTest):
 
     def test_can_get_user(self):
-        result = self.client.execute("""{ user { email firstName lastName } }""")
+        result = self.client.execute("""{ user {
+            email firstName lastName timezone dayEnds
+        } }""")
         self.assertEqual(result, {"data": {"user": {
-            "email": "sarah@gmail.com", "firstName": "Sarah", "lastName": "Jones"
+            "email": "sarah@gmail.com", "firstName": "Sarah",
+            "lastName": "Jones", "timezone": "Africa/Asmera", "dayEnds": 2
         }}})
 
 

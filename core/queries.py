@@ -11,3 +11,4 @@ class UserType(DjangoObjectType):
         exclude_fields = ["password"]
     
     id = graphene.ID()
+    timezone = graphene.String()
