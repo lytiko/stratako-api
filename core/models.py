@@ -1,8 +1,11 @@
 import jwt
 import time
+import pytz
 from random import randint
+from timezone_field import TimeZoneField
 from django.conf import settings
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import AbstractUser
 
 class BigIdModel(models.Model):
@@ -41,6 +44,14 @@ class User(AbstractUser, BigIdModel):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
     is_staff = is_active = is_superuser = None
+
+    day_ends = models.IntegerField(default=0, validators=[
+        MaxValueValidator(5, message="Day end must be between 0 and 5"),
+        MinValueValidator(0, message="Day end must be between 0 and 5")
+    ])
+    timezone = TimeZoneField(blank=True, default="", choices=[
+        (tz, tz) for tz in pytz.all_timezones
+    ])
 
 
     def __str__(self):

@@ -20,9 +20,9 @@ ssh $user@$host "sed -i s/\"HOSTS = \[\]\"/\"HOSTS = \['$host'\]\"/g ~/$host/sou
 # Switch database
 ssh $user@$host "sed -i s/\"DATABASES = local\"/\"DATABASES = live\"/g ~/$host/source/core/secrets.py"
 
-# Apply migrations
-ssh $user@$host "~/$host/env/bin/python ~/$host/source/manage.py migrate"
-
 # Install pip packages
 ssh $user@$host "~/$host/env/bin/pip install psycopg2-binary"
 ssh $user@$host "~/$host/env/bin/pip install -r ~/$host/source/requirements.txt"
+
+# Apply migrations
+ssh $user@$host "~/$host/env/bin/python ~/$host/source/manage.py migrate"
