@@ -213,3 +213,26 @@ class UserModificationTests(FunctionalTest):
         self.check_query_error("""mutation { updateBasicSettings(
             dayEnds: 2, timezone: "Europe/Blackpool"
         ) { user { timezone dayEnds } } }""", message="Europe/Blackpool is not one of the available choices")
+
+
+
+class UserAccountDeletionTests(FunctionalTest):
+
+    def test_can_delete_user_account(self):
+        result = self.client.execute("""mutation { deleteUser(
+            password: "password"
+        ) { success } }""")
+        self.assertEqual(
+            result["data"], {"deleteUser": {"success": True}}
+        )
+        self.assertTrue(User.objects.count(), 1)
+        self.assertFalse(User.objects.filter(email="sarah@gmail.com"))
+
+
+    def test_user_account_deletion_validation(self):
+        # Password must be correct
+        self.check_query_error("""mutation { deleteUser(
+            password: "password123"
+        ) { success } }""", message="Password not correct")
+        self.assertTrue(User.objects.count(), 2)
+        self.assertTrue(User.objects.filter(email="sarah@gmail.com"))
