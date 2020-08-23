@@ -9,8 +9,6 @@ ROOT_URLCONF = "core.urls"
 
 INSTALLED_APPS = [
     "django.contrib.contenttypes",
-    "django.contrib.staticfiles",
-    "django.contrib.auth",
     "graphene_django",
     "corsheaders",
     "core"
@@ -23,18 +21,7 @@ TIME_ZONE = "UTC"
 MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "core.middleware.AuthenticationMiddleware",
 ]
-
-AUTH_USER_MODEL = "core.User"
-AUTH_PASSWORD_VALIDATORS = [{
-    "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    "OPTIONS": {"min_length": 9}
-},{
-    "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-}, {
-    "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-}]
 
 STATIC_URL = "/static/"
 
