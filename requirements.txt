@@ -1,6 +1,5 @@
-django==2.2.12
+django==2.2.14
 django_cors_headers
 graphene_django==2.8.2
 pyjwt
-requests
 django-timezone-field

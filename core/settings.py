@@ -14,10 +14,6 @@ INSTALLED_APPS = [
     "core"
 ]
 
-DATE_FORMAT = "D j M, Y"
-USE_TZ = True
-TIME_ZONE = "UTC"
-
 MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -26,9 +22,8 @@ MIDDLEWARE = [
 STATIC_URL = "/static/"
 
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 
-TOKEN_TIMEOUT = 15
+ID_DIGITS_LENGTH = 18
 
-GRAPHENE = {
-    "SCHEMA": "core.schema.schema"
-}
+GRAPHENE = {"SCHEMA": "core.schema.schema"}
