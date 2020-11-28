@@ -2,7 +2,33 @@ import graphene
 from graphql import GraphQLError
 from graphene.relay import Connection, ConnectionField
 from graphene_django.types import DjangoObjectType
-from core.models import Operation
+from core.models import Operation, Slot
+
+class SlotType(DjangoObjectType):
+
+    class Meta:
+        model = Slot
+    
+    operations = ConnectionField(
+        "core.schema.OperationConnection",
+        started=graphene.Boolean(), completed=graphene.Boolean(),
+    )
+    operation = graphene.Field("core.schema.OperationType")
+
+    def resolve_operations(self, info, **kwargs):
+        operations = self.operations.all()
+        started, completed = kwargs.get("started"), kwargs.get("completed")
+        if started is not None and started:
+            operations = operations.exclude(started=None)
+        if started is not None and not started:
+            operations = operations.filter(started=None)
+        if completed is not None and completed:
+            operations = operations.exclude(completed=None)
+        if completed is not None and not completed:
+            operations = operations.filter(completed=None)
+        return operations
+
+
 
 class OperationType(DjangoObjectType):
 
@@ -22,48 +48,36 @@ class Query(graphene.ObjectType):
     """The root query object. It supplies the user attribute, which is the
     portal through which other attributes are accessed."""
 
-    operations = ConnectionField(
-        OperationConnection,
-        started=graphene.Boolean(), completed=graphene.Boolean(),
-        slot=graphene.Int()
-    )
+    slot = graphene.Field(SlotType, id=graphene.ID(required=True))
+    slots = graphene.List(SlotType)
 
-    def resolve_operations(self, info, **kwargs):
-        operations = Operation.objects.all()
-        started, completed = kwargs.get("started"), kwargs.get("completed")
-        if started is not None and started:
-            operations = operations.exclude(started=None)
-        if started is not None and not started:
-            operations = operations.filter(started=None)
-        if completed is not None and completed:
-            operations = operations.exclude(completed=None)
-        if completed is not None and not completed:
-            operations = operations.filter(completed=None)
-        if "slot" in kwargs:
-            operations = operations.filter(slot=kwargs["slot"])
-        return operations
+    def resolve_slot(self, info, **kwargs):
+        return Slot.objects.get(id=kwargs["id"])
+    
+
+    def resolve_slots(self, info, **kwargs):
+        return Slot.objects.all()
 
 
 
-class ReorderOperationMutation(graphene.Mutation):
+class ReorderOperationsMutation(graphene.Mutation):
 
     class Arguments:
-        slot = graphene.Int(required=True)
+        slot = graphene.ID(required=True)
         operation = graphene.ID(required=True)
         index = graphene.Int(required=True)
 
-    operations = ConnectionField("core.schema.OperationConnection")
+    slot = graphene.Field(SlotType)
 
     def mutate(self, info, **kwargs):
+        slot = Slot.objects.get(id=kwargs["slot"])
         operation = Operation.objects.get(id=kwargs["operation"])
-        operation.move_to_index(kwargs["index"])
-        return ReorderOperationMutation(operations=Operation.objects.filter(
-            slot=operation.slot, completed=None, started=None
-        ))
+        slot.move_operation(operation, kwargs["index"])
+        return ReorderOperationsMutation(slot=slot)
 
 
 class Mutation(graphene.ObjectType):
-    reorder_operation = ReorderOperationMutation.Field()
+    reorder_operations = ReorderOperationsMutation.Field()
 
 
 
