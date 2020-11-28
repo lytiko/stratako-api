@@ -4,6 +4,7 @@ class Operation(models.Model):
 
     class Meta:
         db_table = "operations"
+        ordering = ["-started"]
 
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)
