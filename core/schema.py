@@ -44,4 +44,27 @@ class Query(graphene.ObjectType):
         return operations
 
 
-schema = graphene.Schema(query=Query)
+
+class ReorderOperationMutation(graphene.Mutation):
+
+    class Arguments:
+        slot = graphene.Int(required=True)
+        operation = graphene.ID(required=True)
+        index = graphene.Int(required=True)
+
+    operations = ConnectionField("core.schema.OperationConnection")
+
+    def mutate(self, info, **kwargs):
+        operation = Operation.objects.get(id=kwargs["operation"])
+        operation.move_to_index(kwargs["index"])
+        return ReorderOperationMutation(operations=Operation.objects.filter(
+            slot=operation.slot, completed=None, started=None
+        ))
+
+
+class Mutation(graphene.ObjectType):
+    reorder_operation = ReorderOperationMutation.Field()
+
+
+
+schema = graphene.Schema(query=Query, mutation=Mutation)
