@@ -175,11 +175,63 @@ class ReorderOperationsMutation(graphene.Mutation):
         return ReorderOperationsMutation(slot=slot)
 
 
+
+class CreateTaskMutation(graphene.Mutation):
+
+    class Arguments:
+        name = graphene.String(required=True)
+        operation = graphene.ID(required=True)
+
+    task = graphene.Field(TaskType)
+
+    def mutate(self, info, **kwargs):
+        operation = Operation.objects.get(id=kwargs["operation"])
+        task = Task.objects.create(
+            name=kwargs["name"],
+            operation=operation,
+            order=operation.tasks.count() + 1
+        )
+        return CreateTaskMutation(task=task)
+
+
+
+class ToggleTaskMutation(graphene.Mutation):
+
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    task = graphene.Field(TaskType)
+
+    def mutate(self, info, **kwargs):
+        task = Task.objects.get(id=kwargs["id"])
+        task.completed = not task.completed
+        task.save()
+        return ToggleTaskMutation(task=task)
+
+
+
+class DeleteTaskMutation(graphene.Mutation):
+
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    success = graphene.Boolean()
+
+    def mutate(self, info, **kwargs):
+        task = Task.objects.get(id=kwargs["id"])
+        task.delete()
+        return DeleteTaskMutation(success=True)
+
+
+
 class Mutation(graphene.ObjectType):
     create_operation = CreateOperationMutation.Field()
     complete_operation = CompleteOperationMutation.Field()
     activate_operation = ActivateOperationMutation.Field()
     reorder_operations = ReorderOperationsMutation.Field()
+    create_task = CreateTaskMutation.Field()
+    toggle_task = ToggleTaskMutation.Field()
+    delete_task = DeleteTaskMutation.Field()
 
 
 
