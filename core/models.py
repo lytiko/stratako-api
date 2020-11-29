@@ -49,3 +49,26 @@ class Slot(models.Model):
                 return
 
 
+
+class Project(models.Model):
+
+    class Meta:
+        db_table = "projects"
+    
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=200)
+    operations = models.ManyToManyField(Operation, through="core.ProjectOperationLink", related_name="projects")
+
+    def __str__(self):
+        return self.name
+
+
+
+class ProjectOperationLink(models.Model):
+
+    class Meta:
+        db_table = "project_operation_links"
+    
+    operation = models.ForeignKey(Operation, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project_order = models.IntegerField()

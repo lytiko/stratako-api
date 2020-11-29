@@ -3,7 +3,7 @@ from datetime import date
 from graphql import GraphQLError
 from graphene.relay import Connection, ConnectionField
 from graphene_django.types import DjangoObjectType
-from core.models import Operation, Slot
+from core.models import Operation, Slot, Project
 
 class SlotType(DjangoObjectType):
 
@@ -45,6 +45,20 @@ class OperationConnection(Connection):
 
 
 
+class ProjectType(DjangoObjectType):
+
+    class Meta:
+        model = Project
+
+
+
+class ProjectConnection(Connection):
+
+    class Meta:
+        node = ProjectType
+
+
+
 class Query(graphene.ObjectType):
     """The root query object. It supplies the user attribute, which is the
     portal through which other attributes are accessed."""
@@ -52,9 +66,14 @@ class Query(graphene.ObjectType):
     slot = graphene.Field(SlotType, id=graphene.ID(required=True))
     slots = graphene.List(SlotType)
     operation = graphene.Field("core.schema.OperationType", id=graphene.ID(required=True))
+    project = graphene.Field(ProjectType, id=graphene.ID(required=True))
+    projects = ConnectionField(
+        "core.schema.ProjectConnection"
+    )
 
     def resolve_operation(self, info, **kwargs):
         return Operation.objects.get(id=kwargs["id"])
+
 
     def resolve_slot(self, info, **kwargs):
         return Slot.objects.get(id=kwargs["id"])
@@ -62,6 +81,14 @@ class Query(graphene.ObjectType):
 
     def resolve_slots(self, info, **kwargs):
         return Slot.objects.all()
+    
+
+    def resolve_project(self, info, **kwargs):
+        return Project.objects.get(id=kwargs["id"])
+    
+
+    def resolve_projects(self, info, **kwargs):
+        return Project.objects.all()
 
 
 
