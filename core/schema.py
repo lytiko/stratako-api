@@ -1,4 +1,5 @@
 import graphene
+from datetime import date
 from graphql import GraphQLError
 from graphene.relay import Connection, ConnectionField
 from graphene_django.types import DjangoObjectType
@@ -60,6 +61,23 @@ class Query(graphene.ObjectType):
 
 
 
+class CompleteOperationMutation(graphene.Mutation):
+
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    operation = graphene.Field(OperationType)
+
+    def mutate(self, info, **kwargs):
+        operation = Operation.objects.get(id=kwargs["id"])
+        operation.completed = date.today()
+        operation.save()
+        operation.slot.operation = None
+        operation.slot.save()
+        return CompleteOperationMutation(operation=operation)
+
+
+
 class ReorderOperationsMutation(graphene.Mutation):
 
     class Arguments:
@@ -77,6 +95,7 @@ class ReorderOperationsMutation(graphene.Mutation):
 
 
 class Mutation(graphene.ObjectType):
+    complete_operation = CompleteOperationMutation.Field()
     reorder_operations = ReorderOperationsMutation.Field()
 
 
