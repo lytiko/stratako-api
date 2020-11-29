@@ -61,6 +61,25 @@ class Query(graphene.ObjectType):
 
 
 
+class CreateOperationMutation(graphene.Mutation):
+
+    class Arguments:
+        name = graphene.String(required=True)
+        slot = graphene.ID(required=True)
+
+    operation = graphene.Field(OperationType)
+
+    def mutate(self, info, **kwargs):
+        slot = Slot.objects.get(id=kwargs["slot"])
+        operation = Operation.objects.create(
+            name=kwargs["name"],
+            slot=slot,
+            slot_order=slot.operations.last().slot_order + 1
+        )
+        return CreateOperationMutation(operation=operation)
+
+
+
 class CompleteOperationMutation(graphene.Mutation):
 
     class Arguments:
@@ -112,6 +131,7 @@ class ReorderOperationsMutation(graphene.Mutation):
 
 
 class Mutation(graphene.ObjectType):
+    create_operation = CreateOperationMutation.Field()
     complete_operation = CompleteOperationMutation.Field()
     activate_operation = ActivateOperationMutation.Field()
     reorder_operations = ReorderOperationsMutation.Field()
