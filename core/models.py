@@ -72,3 +72,19 @@ class ProjectOperationLink(models.Model):
     operation = models.ForeignKey(Operation, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     project_order = models.IntegerField()
+
+
+
+class Task(models.Model):
+
+    class Meta:
+        db_table = "tasks"
+        ordering = ["order"]
+
+    name = models.CharField(max_length=50)
+    completed = models.BooleanField(default=False)
+    order = models.IntegerField()
+    operation = models.ForeignKey(Operation, on_delete=models.CASCADE, related_name="tasks")
+
+    def __str__(self):
+        return self.name

@@ -3,7 +3,7 @@ from datetime import date
 from graphql import GraphQLError
 from graphene.relay import Connection, ConnectionField
 from graphene_django.types import DjangoObjectType
-from core.models import Operation, Slot, Project
+from core.models import *
 
 class SlotType(DjangoObjectType):
 
@@ -56,6 +56,20 @@ class ProjectConnection(Connection):
 
     class Meta:
         node = ProjectType
+
+
+
+class TaskType(DjangoObjectType):
+
+    class Meta:
+        model = Task
+
+
+
+class TaskConnection(Connection):
+
+    class Meta:
+        node = TaskType
 
 
 
