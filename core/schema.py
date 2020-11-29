@@ -51,6 +51,10 @@ class Query(graphene.ObjectType):
 
     slot = graphene.Field(SlotType, id=graphene.ID(required=True))
     slots = graphene.List(SlotType)
+    operation = graphene.Field("core.schema.OperationType", id=graphene.ID(required=True))
+
+    def resolve_operation(self, info, **kwargs):
+        return Operation.objects.get(id=kwargs["id"])
 
     def resolve_slot(self, info, **kwargs):
         return Slot.objects.get(id=kwargs["id"])
