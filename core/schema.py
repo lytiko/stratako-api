@@ -78,6 +78,23 @@ class CompleteOperationMutation(graphene.Mutation):
 
 
 
+class ActivateOperationMutation(graphene.Mutation):
+
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    operation = graphene.Field(OperationType)
+
+    def mutate(self, info, **kwargs):
+        operation = Operation.objects.get(id=kwargs["id"])
+        operation.started = date.today()
+        operation.save()
+        operation.slot.operation = operation
+        operation.slot.save()
+        return ActivateOperationMutation(operation=operation)
+
+
+
 class ReorderOperationsMutation(graphene.Mutation):
 
     class Arguments:
@@ -96,6 +113,7 @@ class ReorderOperationsMutation(graphene.Mutation):
 
 class Mutation(graphene.ObjectType):
     complete_operation = CompleteOperationMutation.Field()
+    activate_operation = ActivateOperationMutation.Field()
     reorder_operations = ReorderOperationsMutation.Field()
 
 
