@@ -1,6 +1,7 @@
-from django.db import models 
+from django.db import models
+from django_random_id_model import RandomIDModel
 
-class Operation(models.Model):
+class Operation(RandomIDModel):
 
     class Meta:
         db_table = "operations"
@@ -19,7 +20,7 @@ class Operation(models.Model):
     
 
 
-class Slot(models.Model):
+class Slot(RandomIDModel):
 
     class Meta:
         db_table = "slots"
@@ -61,7 +62,7 @@ class Slot(models.Model):
 
 
 
-class Project(models.Model):
+class Project(RandomIDModel):
 
     class Meta:
         db_table = "projects"
@@ -85,7 +86,7 @@ class Project(models.Model):
 
 
 
-class ProjectOperationLink(models.Model):
+class ProjectOperationLink(RandomIDModel):
 
     class Meta:
         db_table = "project_operation_links"
@@ -96,7 +97,7 @@ class ProjectOperationLink(models.Model):
 
 
 
-class Task(models.Model):
+class Task(RandomIDModel):
 
     class Meta:
         db_table = "tasks"

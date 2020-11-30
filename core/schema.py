@@ -10,6 +10,7 @@ class SlotType(DjangoObjectType):
     class Meta:
         model = Slot
     
+    id = graphene.String()
     operations = graphene.List(
         "core.schema.OperationType",
         started=graphene.Boolean(), completed=graphene.Boolean(),
@@ -35,6 +36,8 @@ class OperationType(DjangoObjectType):
 
     class Meta:
         model = Operation
+    
+    id = graphene.String()
 
 
 
@@ -43,6 +46,7 @@ class ProjectType(DjangoObjectType):
     class Meta:
         model = Project
     
+    id = graphene.String()
     last_activity = graphene.String()
 
 
@@ -51,6 +55,8 @@ class TaskType(DjangoObjectType):
 
     class Meta:
         model = Task
+    
+    id = graphene.String()
 
 
 

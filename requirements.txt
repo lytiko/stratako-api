@@ -3,3 +3,4 @@ django_cors_headers
 graphene_django==2.8.2
 pyjwt
 django-timezone-field
+django-random-id-model
