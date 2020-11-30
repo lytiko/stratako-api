@@ -73,6 +73,15 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+    @property
+    def last_activity(self):
+        active = self.operations.filter(completed=None).exclude(started=None)
+        if active.count(): return active.last().started
+        completed = self.operations.exclude(completed=None)
+        if completed.count(): return completed.last().completed
+        return None
 
 
 

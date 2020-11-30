@@ -38,24 +38,12 @@ class OperationType(DjangoObjectType):
 
 
 
-class OperationConnection(Connection):
-
-    class Meta:
-        node = OperationType
-
-
-
 class ProjectType(DjangoObjectType):
 
     class Meta:
         model = Project
-
-
-
-class ProjectConnection(Connection):
-
-    class Meta:
-        node = ProjectType
+    
+    last_activity = graphene.String()
 
 
 
@@ -63,13 +51,6 @@ class TaskType(DjangoObjectType):
 
     class Meta:
         model = Task
-
-
-
-class TaskConnection(Connection):
-
-    class Meta:
-        node = TaskType
 
 
 
