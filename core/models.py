@@ -68,6 +68,7 @@ class Project(models.Model):
     
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)
+    color = models.CharField(max_length=20, default="")
     operations = models.ManyToManyField(Operation, through="core.ProjectOperationLink", related_name="projects")
 
     def __str__(self):
