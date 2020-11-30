@@ -35,6 +35,17 @@ class Slot(models.Model):
     def __str__(self):
         return f"{self.order}: {self.name}"
 
+
+    def clean_orders(self):
+        completed = list(self.operations.exclude(completed=None))
+        current = list(self.operations.filter(completed=None).exclude(started=None))
+        future = list(self.operations.filter(completed=None, started=None))
+        completed.sort(key=lambda o: o.completed)
+        future.sort(key=lambda o: o.slot_order)
+        for index, operation in enumerate(completed + current + future):
+            operation.slot_order = index + 1
+            operation.save()
+
     
     def move_operation(self, operation, index):
         operations = list(self.operations.filter(started=None))

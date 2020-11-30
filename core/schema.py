@@ -10,8 +10,8 @@ class SlotType(DjangoObjectType):
     class Meta:
         model = Slot
     
-    operations = ConnectionField(
-        "core.schema.OperationConnection",
+    operations = graphene.List(
+        "core.schema.OperationType",
         started=graphene.Boolean(), completed=graphene.Boolean(),
     )
     operation = graphene.Field("core.schema.OperationType")
@@ -81,8 +81,8 @@ class Query(graphene.ObjectType):
     slots = graphene.List(SlotType)
     operation = graphene.Field("core.schema.OperationType", id=graphene.ID(required=True))
     project = graphene.Field(ProjectType, id=graphene.ID(required=True))
-    projects = ConnectionField(
-        "core.schema.ProjectConnection"
+    projects = graphene.List(
+        "core.schema.ProjectType"
     )
 
     def resolve_operation(self, info, **kwargs):
@@ -138,6 +138,7 @@ class CompleteOperationMutation(graphene.Mutation):
         operation.save()
         operation.slot.operation = None
         operation.slot.save()
+        operation.slot.clean_orders()
         return CompleteOperationMutation(operation=operation)
 
 
@@ -155,6 +156,7 @@ class ActivateOperationMutation(graphene.Mutation):
         operation.save()
         operation.slot.operation = operation
         operation.slot.save()
+        operation.slot.clean_orders()
         return ActivateOperationMutation(operation=operation)
 
 
