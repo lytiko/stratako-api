@@ -189,8 +189,7 @@ class ToggleTaskMutation(graphene.Mutation):
 
     def mutate(self, info, **kwargs):
         task = Task.objects.get(id=kwargs["id"])
-        task.completed = not task.completed
-        task.save()
+        task.toggle()
         return ToggleTaskMutation(task=task)
 
 

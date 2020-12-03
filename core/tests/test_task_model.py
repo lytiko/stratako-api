@@ -1,3 +1,4 @@
+import time
 from mixer.backend.django import mixer
 from django.test import TestCase
 from core.models import *
@@ -48,6 +49,19 @@ class TaskOrderTests(TestCase):
         self.assertEqual(list(Task.objects.all()), [task1, task2, task3, task4, task5])
 
 
+
+class TaskTogglingTests(TestCase):
+
+    def test_can_toggle_task(self):
+        operation = mixer.blend(Operation, slot=mixer.blend(Slot, operation=None))
+        task = mixer.blend(Task, operation=operation)
+        self.assertIsNone(task.completed)
+        task.toggle()
+        self.assertLess(time.time() - task.completed, 2)
+        task.toggle()
+        self.assertIsNone(task.completed)
+
+        
 
 class TaskMovingTests(TestCase):
 

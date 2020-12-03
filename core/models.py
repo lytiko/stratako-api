@@ -1,3 +1,4 @@
+import time
 from django.db import models, transaction
 from django_random_id_model import RandomIDModel
 
@@ -104,7 +105,7 @@ class Task(RandomIDModel):
         ordering = ["order"]
 
     name = models.CharField(max_length=50)
-    completed = models.BooleanField(default=False)
+    completed = models.IntegerField(null=True, default=None)
     order = models.IntegerField()
     operation = models.ForeignKey(Operation, on_delete=models.CASCADE, related_name="tasks")
 
@@ -119,6 +120,14 @@ class Task(RandomIDModel):
         if self.order is None:
             self.order = self.operation.tasks.count() + 1
         super(Task, self).save(*args, **kwargs)
+    
+
+    def toggle(self):
+        """If not completed, the completed attribute will be set to the current
+        time, otherwise it will be set to None."""
+        
+        self.completed = int(time.time()) if self.completed is None else None
+        self.save()
     
 
     def move(self, index):
