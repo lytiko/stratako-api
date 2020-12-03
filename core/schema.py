@@ -175,11 +175,7 @@ class CreateTaskMutation(graphene.Mutation):
 
     def mutate(self, info, **kwargs):
         operation = Operation.objects.get(id=kwargs["operation"])
-        task = Task.objects.create(
-            name=kwargs["name"],
-            operation=operation,
-            order=operation.tasks.count() + 1
-        )
+        task = Task.objects.create(name=kwargs["name"], operation=operation)
         return CreateTaskMutation(task=task)
 
 

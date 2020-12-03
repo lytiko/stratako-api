@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django_random_id_model import RandomIDModel
 
 class Operation(RandomIDModel):
@@ -119,3 +119,18 @@ class Task(RandomIDModel):
         if self.order is None:
             self.order = self.operation.tasks.count() + 1
         super(Task, self).save(*args, **kwargs)
+    
+
+    def move(self, index):
+        """Moves a task within the containing operation to a new position."""
+
+        if self.order == index + 1: return
+        tasks = list(self.operation.tasks.all())
+        for task in tasks:
+            if task.id == self.id:
+                tasks.remove(task)
+                tasks.insert(index, self)
+                for index, task_ in enumerate(tasks, start=1):
+                    task_.order = index
+                Task.objects.bulk_update(tasks, ["order"])
+                break
