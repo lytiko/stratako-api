@@ -110,3 +110,12 @@ class Task(RandomIDModel):
 
     def __str__(self):
         return self.name
+    
+
+    def save(self, *args, **kwargs):
+        """If no order is given, count the number of tasks in the containing
+        operation and add one."""
+        
+        if self.order is None:
+            self.order = self.operation.tasks.count() + 1
+        super(Task, self).save(*args, **kwargs)
