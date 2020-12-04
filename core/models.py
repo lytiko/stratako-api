@@ -1,6 +1,7 @@
 import time
-from django.db import models, transaction
 from django_random_id_model import RandomIDModel
+from django.db import models, transaction
+from django.core.exceptions import ValidationError
 
 class Operation(RandomIDModel):
 
@@ -105,9 +106,16 @@ class Task(RandomIDModel):
         ordering = ["order"]
 
     name = models.CharField(max_length=50)
-    completed = models.IntegerField(null=True, default=None)
+    completed = models.IntegerField(null=True, blank=True, default=None)
     order = models.IntegerField()
-    operation = models.ForeignKey(Operation, on_delete=models.CASCADE, related_name="tasks")
+    operation = models.ForeignKey(
+        Operation, on_delete=models.CASCADE,
+        related_name="tasks", null=True, blank=True
+    )
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE,
+        related_name="tasks", null=True, blank=True
+    )
 
     def __str__(self):
         return self.name
@@ -117,8 +125,13 @@ class Task(RandomIDModel):
         """If no order is given, count the number of tasks in the containing
         operation and add one."""
         
+        if self.project is None and self.operation is None:
+            raise ValidationError("Need a project or operation")
+        if self.project is not None and self.operation is not None:
+            raise ValidationError("Can't have project and operation")
         if self.order is None:
-            self.order = self.operation.tasks.count() + 1
+            container = self.operation or self.project
+            self.order = container.tasks.count() + 1
         super(Task, self).save(*args, **kwargs)
     
 

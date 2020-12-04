@@ -1,11 +1,13 @@
 import time
 from mixer.backend.django import mixer
 from django.test import TestCase
+from django.core.exceptions import ValidationError
 from core.models import *
 
 class TaskCreationTests(TestCase):
 
     def test_tasks_auto_add_order_if_not_given(self):
+        # Operation
         operation1 = mixer.blend(Operation, slot=mixer.blend(Slot, operation=None))
         operation2 = mixer.blend(Operation, slot=mixer.blend(Slot, operation=None))
         task = mixer.blend(Task, operation=operation1, order=None)
@@ -16,11 +18,24 @@ class TaskCreationTests(TestCase):
         self.assertEqual(task.order, 1)
         task = mixer.blend(Task, operation=operation1, order=None)
         self.assertEqual(task.order, 3)
+
+        # Project
+        project = mixer.blend(Project)
+        task = mixer.blend(Task, project=project, order=None)
+        self.assertEqual(task.order, 1)
+        task = mixer.blend(Task, project=project, order=None)
+        self.assertEqual(task.order, 2)
     
 
     def test_tasks_can_take_custom_order(self):
+        # Operation
         operation = mixer.blend(Operation, slot=mixer.blend(Slot, operation=None))
         task = mixer.blend(Task, operation=operation, order=10)
+        self.assertEqual(task.order, 10)
+
+        # Project
+        project = mixer.blend(Project)
+        task = mixer.blend(Task, project=project, order=10)
         self.assertEqual(task.order, 10)
     
 
@@ -34,6 +49,17 @@ class TaskCreationTests(TestCase):
         task.name = "XYZ"
         task.save()
         self.assertEqual(task.order, 10)
+    
+
+    def test_operation_or_project(self):
+        operation = mixer.blend(Operation, slot=mixer.blend(Slot, operation=None))
+        project = mixer.blend(Project)
+        with self.assertRaises(ValidationError):
+            Task.objects.create().full_clean()
+        with self.assertRaises(ValidationError):
+            Task.objects.create(name="T", operation=operation, project=project).full_clean()
+        Task.objects.create(name="T", operation=operation).full_clean()
+        Task.objects.create(name="T", project=project).full_clean()
 
 
 
