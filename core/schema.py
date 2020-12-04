@@ -169,13 +169,16 @@ class CreateTaskMutation(graphene.Mutation):
 
     class Arguments:
         name = graphene.String(required=True)
-        operation = graphene.ID(required=True)
+        operation = graphene.ID()
+        project = graphene.ID()
 
     task = graphene.Field(TaskType)
 
     def mutate(self, info, **kwargs):
-        operation = Operation.objects.get(id=kwargs["operation"])
-        task = Task.objects.create(name=kwargs["name"], operation=operation)
+        operation, project = kwargs.get("operation"), kwargs.get("project")
+        if operation: operation = Operation.objects.get(id=kwargs.get("operation"))
+        if project: project = Project.objects.get(id=kwargs.get("project"))
+        task = Task.objects.create(name=kwargs["name"], operation=operation, project=project)
         return CreateTaskMutation(task=task)
 
 
