@@ -147,7 +147,8 @@ class Task(RandomIDModel):
         """Moves a task within the containing operation to a new position."""
 
         if self.order == index + 1: return
-        tasks = list(self.operation.tasks.all())
+        container = self.operation or self.project
+        tasks = list(container.tasks.all())
         for task in tasks:
             if task.id == self.id:
                 tasks.remove(task)

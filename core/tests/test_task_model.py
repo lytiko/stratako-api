@@ -93,17 +93,27 @@ class TaskMovingTests(TestCase):
 
     def setUp(self):
         self.operation = mixer.blend(Operation, slot=mixer.blend(Slot, operation=None))
+        self.project = mixer.blend(Project)
         self.tasks = [mixer.blend(Task, operation=self.operation, order=o) for o in range(1, 6)]
+        self.project_tasks = [mixer.blend(Task, project=self.project, order=o) for o in range(1, 6)]
 
 
     def test_can_stay_in_place(self):
+        # Operations
         self.tasks[0].move(0)
         for order, task in enumerate(self.tasks, start=1):
+            task.refresh_from_db()
+            self.assertEqual(task.order, order)
+        
+        # Projects
+        self.project_tasks[0].move(0)
+        for order, task in enumerate(self.project_tasks, start=1):
             task.refresh_from_db()
             self.assertEqual(task.order, order)
     
 
     def test_can_move_down_operation(self):
+        # Operations
         with self.assertNumQueries(2):
             self.tasks[0].move(1)
         for order, task in zip([2, 1, 3, 4, 5], self.tasks):
@@ -113,14 +123,36 @@ class TaskMovingTests(TestCase):
         for order, task in zip([2, 1, 5, 3, 4], self.tasks):
             task.refresh_from_db()
             self.assertEqual(task.order, order)
+        
+        # Projects
+        with self.assertNumQueries(2):
+            self.project_tasks[0].move(1)
+        for order, task in zip([2, 1, 3, 4, 5], self.project_tasks):
+            task.refresh_from_db()
+            self.assertEqual(task.order, order)
+        self.project_tasks[2].move(4)
+        for order, task in zip([2, 1, 5, 3, 4], self.project_tasks):
+            task.refresh_from_db()
+            self.assertEqual(task.order, order)
     
 
     def test_can_move_up_operation(self):
+        # Operations
         self.tasks[4].move(3)
         for order, task in zip([1, 2, 3, 5, 4], self.tasks):
             task.refresh_from_db()
             self.assertEqual(task.order, order)
         self.tasks[1].move(0)
         for order, task in zip([2, 1, 3, 5, 4], self.tasks):
+            task.refresh_from_db()
+            self.assertEqual(task.order, order)
+        
+        # Projects
+        self.project_tasks[4].move(3)
+        for order, task in zip([1, 2, 3, 5, 4], self.project_tasks):
+            task.refresh_from_db()
+            self.assertEqual(task.order, order)
+        self.project_tasks[1].move(0)
+        for order, task in zip([2, 1, 3, 5, 4], self.project_tasks):
             task.refresh_from_db()
             self.assertEqual(task.order, order)
