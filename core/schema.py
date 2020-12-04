@@ -180,6 +180,22 @@ class CreateTaskMutation(graphene.Mutation):
 
 
 
+class UpdateTaskMutation(graphene.Mutation):
+
+    class Arguments:
+        id = graphene.ID(required=True)
+        name = graphene.String(required=True)
+
+    task = graphene.Field(TaskType)
+
+    def mutate(self, info, **kwargs):
+        task = Task.objects.get(id=kwargs["id"])
+        task.name = kwargs["name"]
+        task.save()
+        return UpdateTaskMutation(task=task)
+
+
+
 class ToggleTaskMutation(graphene.Mutation):
 
     class Arguments:
@@ -214,6 +230,7 @@ class Mutation(graphene.ObjectType):
     activate_operation = ActivateOperationMutation.Field()
     reorder_operations = ReorderOperationsMutation.Field()
     create_task = CreateTaskMutation.Field()
+    update_task = UpdateTaskMutation.Field()
     toggle_task = ToggleTaskMutation.Field()
     delete_task = DeleteTaskMutation.Field()
 
