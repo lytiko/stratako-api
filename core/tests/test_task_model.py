@@ -156,3 +156,55 @@ class TaskMovingTests(TestCase):
         for order, task in zip([2, 1, 3, 5, 4], self.project_tasks):
             task.refresh_from_db()
             self.assertEqual(task.order, order)
+    
+
+    def test_can_move_from_operation_to_operation(self):
+        operation2 = mixer.blend(Operation, slot=mixer.blend(Slot, operation=None))
+        tasks = [mixer.blend(Task, operation=operation2, order=o) for o in range(1, 4)]
+        self.tasks[2].move(1, operation=operation2)
+        self.assertEqual(self.operation.tasks.count(), 4)
+        self.assertEqual(operation2.tasks.count(), 4)
+        for order, task in zip([1, 2, 2, 3, 4], self.tasks):
+            task.refresh_from_db()
+            self.assertEqual(task.order, order)
+        for order, task in zip([1, 3, 4], tasks):
+            task.refresh_from_db()
+            self.assertEqual(task.order, order)
+    
+
+    def test_can_move_from_project_to_project(self):
+        project2 = mixer.blend(Project)
+        tasks = [mixer.blend(Task, project=project2, order=o) for o in range(1, 4)]
+        self.project_tasks[2].move(1, project=project2)
+        self.assertEqual(self.project.tasks.count(), 4)
+        self.assertEqual(project2.tasks.count(), 4)
+        for order, task in zip([1, 2, 2, 3, 4], self.project_tasks):
+            task.refresh_from_db()
+            self.assertEqual(task.order, order)
+        for order, task in zip([1, 3, 4], tasks):
+            task.refresh_from_db()
+            self.assertEqual(task.order, order)
+    
+
+    def test_can_move_from_operation_to_project(self):
+        self.tasks[2].move(1, project=self.project)
+        self.assertEqual(self.operation.tasks.count(), 4)
+        self.assertEqual(self.project.tasks.count(), 6)
+        for order, task in zip([1, 2, 2, 3, 4], self.tasks):
+            task.refresh_from_db()
+            self.assertEqual(task.order, order)
+        for order, task in zip([1, 3, 4, 5, 6], self.project_tasks):
+            task.refresh_from_db()
+            self.assertEqual(task.order, order)
+    
+
+    def test_can_move_from_project_to_operation(self):
+        self.project_tasks[2].move(1, operation=self.operation)
+        self.assertEqual(self.project.tasks.count(), 4)
+        self.assertEqual(self.operation.tasks.count(), 6)
+        for order, task in zip([1, 2, 2, 3, 4], self.project_tasks):
+            task.refresh_from_db()
+            self.assertEqual(task.order, order)
+        for order, task in zip([1, 3, 4, 5, 6], self.tasks):
+            task.refresh_from_db()
+            self.assertEqual(task.order, order)

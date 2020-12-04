@@ -143,17 +143,29 @@ class Task(RandomIDModel):
         self.save()
     
 
-    def move(self, index):
-        """Moves a task within the containing operation to a new position."""
+    def move(self, index, operation=None, project=None):
+        """Moves a task within the containing operation/project to a new
+        position, or to a position with another operation/project."""
 
-        if self.order == index + 1: return
-        container = self.operation or self.project
-        tasks = list(container.tasks.all())
-        for task in tasks:
+        source_container = self.operation or self.project
+        destination_container = operation or project or source_container
+        source_tasks = list(source_container.tasks.all())
+        destination_tasks = list(destination_container.tasks.all()) if \
+            source_container is not destination_container else source_tasks
+        for task in source_tasks:
             if task.id == self.id:
-                tasks.remove(task)
-                tasks.insert(index, self)
-                for index, task_ in enumerate(tasks, start=1):
+                if operation:
+                    self.operation = operation
+                    if self.project: self.project = None
+                if project:
+                    self.project = project
+                    if self.operation: self.operation = None
+                if operation or project: self.save()
+                source_tasks.remove(task)
+                destination_tasks.insert(index, self)
+                for index, task_ in enumerate(source_tasks, start=1):
                     task_.order = index
-                Task.objects.bulk_update(tasks, ["order"])
+                for index, task_ in enumerate(destination_tasks, start=1):
+                    task_.order = index
+                Task.objects.bulk_update(source_tasks + destination_tasks, ["order"])
                 break
