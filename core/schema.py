@@ -218,12 +218,16 @@ class MoveTaskMutation(graphene.Mutation):
     class Arguments:
         id = graphene.ID(required=True)
         index = graphene.Int(required=True)
+        operation = graphene.ID(required=False)
+        project = graphene.ID(required=False)
 
     task = graphene.Field(TaskType)
 
     def mutate(self, info, **kwargs):
         task = Task.objects.get(id=kwargs["id"])
-        task.move(kwargs["index"])
+        operation = Operation.objects.get(id=kwargs["operation"]) if "operation" in kwargs else None
+        project = Project.objects.get(id=kwargs["project"]) if "project" in kwargs else None
+        task.move(kwargs["index"], operation=operation, project=project)
         return MoveTaskMutation(task=task)
 
 
