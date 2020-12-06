@@ -150,7 +150,7 @@ class Task(RandomIDModel):
         source_container = self.operation or self.project
         destination_container = operation or project or source_container
         source_tasks = list(source_container.tasks.all())
-        destination_tasks = list(destination_container.tasks.all()) if \
+        dest_tasks = list(destination_container.tasks.all()) if \
             source_container is not destination_container else source_tasks
         for task in source_tasks:
             if task.id == self.id:
@@ -162,10 +162,10 @@ class Task(RandomIDModel):
                     if self.operation: self.operation = None
                 if operation or project: self.save()
                 source_tasks.remove(task)
-                destination_tasks.insert(index, self)
+                dest_tasks.insert(index, self)
                 for index, task_ in enumerate(source_tasks, start=1):
                     task_.order = index
-                for index, task_ in enumerate(destination_tasks, start=1):
+                for index, task_ in enumerate(dest_tasks, start=1):
                     task_.order = index
-                Task.objects.bulk_update(source_tasks + destination_tasks, ["order"])
+                Task.objects.bulk_update(source_tasks + dest_tasks, ["order"])
                 break
