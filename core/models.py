@@ -1,4 +1,5 @@
 import time
+from datetime import date
 from django_random_id_model import RandomIDModel
 from django.db import models, transaction
 from django.core.exceptions import ValidationError
@@ -7,18 +8,28 @@ class Operation(RandomIDModel):
 
     class Meta:
         db_table = "operations"
-        ordering = ["slot_order"]
+        ordering = ["order", "started"]
 
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)
-    slot_order = models.IntegerField(null=True)
-    started = models.DateField(null=True)
-    completed = models.DateField(null=True)
+    order = models.IntegerField(null=True)
+    started = models.DateField(null=True, default=None)
+    completed = models.DateField(null=True, default=None)
     slot = models.ForeignKey("core.Slot", on_delete=models.CASCADE, related_name="operations")
 
 
     def __str__(self):
         return self.name
+    
+
+    def save(self, *args, **kwargs):
+        """If no order is given, count the number of tasks in the containing
+        slot and add one."""
+        
+        if self.order is None and not self.started:
+            self.order = self.slot.operations.filter(started=None).count() + 1
+        if self.started: self.order = None
+        super(Operation, self).save(*args, **kwargs)
     
 
 
