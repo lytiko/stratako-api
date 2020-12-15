@@ -32,6 +32,30 @@ class Operation(RandomIDModel):
         super(Operation, self).save(*args, **kwargs)
     
 
+    def move(self, index, slot=None):
+        """Moves an operation within the containing slot to a new position, or
+        to a position with another slot."""
+
+        destination = slot or self.slot
+        source_operations = list(self.slot.operations.filter(started=None))
+        dest_operations = list(destination.operations.filter(started=None)) if \
+            self.slot is not destination else source_operations
+        for operation in source_operations:
+            if operation.id == self.id:
+                self.slot = destination
+                if slot: self.save()
+                source_operations.remove(operation)
+                dest_operations.insert(index, self)
+                for index, operation_ in enumerate(source_operations, start=1):
+                    operation_.order = index
+                for index, operation_ in enumerate(dest_operations, start=1):
+                    operation_.order = index
+                Operation.objects.bulk_update(
+                    source_operations + dest_operations, ["order"]
+                )
+                break
+    
+
 
 class Slot(RandomIDModel):
 
