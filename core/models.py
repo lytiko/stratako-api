@@ -79,21 +79,21 @@ class Slot(RandomIDModel):
         current = list(self.operations.filter(completed=None).exclude(started=None))
         future = list(self.operations.filter(completed=None, started=None))
         completed.sort(key=lambda o: o.completed)
-        future.sort(key=lambda o: o.slot_order)
+        future.sort(key=lambda o: o.order)
         for index, operation in enumerate(completed + current + future):
-            operation.slot_order = index + 1
+            operation.order = index + 1
             operation.save()
 
     
     def move_operation(self, operation, index):
         operations = list(self.operations.filter(started=None))
-        start_index = operations[0].slot_order
+        start_index = operations[0].order
         for op_index, op in enumerate(operations):
             if op.id == operation.id:
                 operations.remove(op)
                 operations.insert(index  if op_index > index else index, op)
                 for index2, op2 in enumerate(operations):
-                    op2.slot_order = index2 + start_index
+                    op2.order = index2 + start_index
                     op2.save()
                 return
 

@@ -106,7 +106,7 @@ class CreateOperationMutation(graphene.Mutation):
         operation = Operation.objects.create(
             name=kwargs["name"],
             slot=slot,
-            slot_order=slot.operations.last().slot_order + 1
+            order=slot.operations.last().order + 1
         )
         return CreateOperationMutation(operation=operation)
 
