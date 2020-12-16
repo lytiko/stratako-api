@@ -3,6 +3,7 @@ from datetime import date
 from graphql import GraphQLError
 from graphene.relay import Connection, ConnectionField
 from graphene_django.types import DjangoObjectType
+from django.db import transaction
 from core.models import *
 
 class SlotType(DjangoObjectType):
@@ -183,6 +184,31 @@ class UpdateOperationMutation(graphene.Mutation):
 
 
 
+class UpdateOperationProjectsMutation(graphene.Mutation):
+
+    class Arguments:
+        id = graphene.ID(required=True)
+        projects = graphene.List(graphene.ID, required=True)
+
+    operation = graphene.Field(OperationType)
+
+    def mutate(self, info, **kwargs):
+        operation = Operation.objects.get(id=kwargs["id"])
+        with transaction.atomic():
+            for project in operation.projects.all():
+                operation.projects.remove(project)
+            for index, id in enumerate(kwargs["projects"]):
+                project = Project.objects.get(id=id)
+                ProjectOperationLink.objects.create(
+                    operation=operation,
+                    project=project,
+                    project_order=project.operations.count() + 1
+                )
+        operation.save()
+        return UpdateOperationProjectsMutation(operation=operation)
+
+
+
 class CreateTaskMutation(graphene.Mutation):
 
     class Arguments:
@@ -267,6 +293,7 @@ class DeleteTaskMutation(graphene.Mutation):
 class Mutation(graphene.ObjectType):
     create_operation = CreateOperationMutation.Field()
     update_operation = UpdateOperationMutation.Field()
+    update_operation_projects = UpdateOperationProjectsMutation.Field()
     complete_operation = CompleteOperationMutation.Field()
     activate_operation = ActivateOperationMutation.Field()
     reorder_operations = ReorderOperationsMutation.Field()
