@@ -165,6 +165,24 @@ class ReorderOperationsMutation(graphene.Mutation):
 
 
 
+class UpdateOperationMutation(graphene.Mutation):
+
+    class Arguments:
+        id = graphene.ID(required=True)
+        name = graphene.String(required=True)
+        description = graphene.String()
+
+    operation = graphene.Field(OperationType)
+
+    def mutate(self, info, **kwargs):
+        operation = Operation.objects.get(id=kwargs["id"])
+        operation.name = kwargs["name"]
+        operation.description = kwargs.get("description", "")
+        operation.save()
+        return UpdateOperationMutation(operation=operation)
+
+
+
 class CreateTaskMutation(graphene.Mutation):
 
     class Arguments:
@@ -248,6 +266,7 @@ class DeleteTaskMutation(graphene.Mutation):
 
 class Mutation(graphene.ObjectType):
     create_operation = CreateOperationMutation.Field()
+    update_operation = UpdateOperationMutation.Field()
     complete_operation = CompleteOperationMutation.Field()
     activate_operation = ActivateOperationMutation.Field()
     reorder_operations = ReorderOperationsMutation.Field()
