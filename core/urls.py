@@ -16,6 +16,7 @@ class ReadableErrorGraphQLView(GraphQLView):
                 return GraphQLView.format_error(GraphQLError("Resolver error"))
         return GraphQLView.format_error(error)
 
+
 urlpatterns = [
     path("graphql", ReadableErrorGraphQLView.as_view()),
 ]
