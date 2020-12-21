@@ -1,0 +1,21 @@
+[
+    {
+        "model": "core.User",
+        "pk": 1,
+        "fields": {
+            "email": "jack@gmail.com",
+            "name": "Jack Shephard",
+            "creation_time": 946684800
+        }
+    },
+    {
+        "model": "core.User",
+        "pk": 2,
+        "fields": {
+            "email": "boone@gmail.com",
+            "name": "Boone Carlyle",
+            "creation_time": 946684801,
+            "last_login": 946684801
+        }
+    }
+]
