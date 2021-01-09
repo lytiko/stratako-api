@@ -75,3 +75,38 @@ class User(RandomIDModel):
         return jwt.encode({
             "sub": self.id, "iat": now, "expires": now + 31536000
         }, settings.SECRET_KEY, algorithm="HS256").decode()
+
+
+
+class Slot(RandomIDModel):
+
+    class Meta:
+        db_table = "slots"
+        ordering = ["order"]
+
+    name = models.CharField(max_length=40)
+    order = models.IntegerField(null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="slots")
+
+    def __str__(self):
+        return self.name
+    
+
+    def save(self, *args, **kwargs):
+        """If no order is given, count the number of slots in the containing
+        user and add one."""
+        
+        if self.order is None:
+            self.order = self.user.slots.count() + 1
+        super(Slot, self).save(*args, **kwargs)
+    
+
+    def move_to(self, index):
+        """Moves a Slot to a new position within the containing user."""
+
+        slots = list(self.user.slots.exclude(id=self.id))
+        slots.insert(index, self)
+        for i, slot in enumerate(slots, start=1):
+            slot.order = i
+        Slot.objects.bulk_update(slots, ["order"])
+
