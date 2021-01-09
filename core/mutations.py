@@ -164,3 +164,21 @@ class MoveSlotMutation(graphene.Mutation):
         slot.move_to(kwargs["index"])
         return MoveSlotMutation(slot=slot, user=slot.user)
         raise GraphQLError(json.dumps(form.errors))
+
+
+
+class DeleteSlotMutation(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+    
+    success = graphene.Boolean()
+
+    def mutate(self, info, **kwargs):
+        if not info.context.user:
+            raise GraphQLError('{"user": "Not authorized"}')
+        slot = info.context.user.slots.filter(id=kwargs["id"])
+        if not slot: raise GraphQLError('{"slot": ["Does not exist"]}')
+        if slot.first().user.slots.count() == 1:
+            raise GraphQLError('{"slot": ["You must have at least one slot"]}')
+        slot = slot.first().delete()
+        return DeleteSlotMutation(success=True)

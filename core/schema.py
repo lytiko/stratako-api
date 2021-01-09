@@ -37,5 +37,6 @@ class Mutation(graphene.ObjectType):
     create_slot = CreateSlotMutation.Field()
     update_slot = UpdateSlotMutation.Field()
     move_slot = MoveSlotMutation.Field()
+    delete_slot = DeleteSlotMutation.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

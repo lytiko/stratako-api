@@ -100,3 +100,39 @@ class SlotMutationTests(TokenFunctionaltest):
         self.check_query_error("""mutation { moveSlot(id: 1, index: 1) {
             slot { name }
         } }""", message="Not authorized")
+    
+
+    def test_can_delete_slot(self):
+        # Send deletion mutation
+        slots_at_start = Slot.objects.count()
+        result = self.client.execute("""mutation { deleteSlot(id: 1) { success } }""")
+
+        # It works
+        self.assertTrue(result["data"]["deleteSlot"]["success"])
+        self.assertEqual(Slot.objects.count(), slots_at_start - 1)
+        self.assertFalse(Slot.objects.filter(name="Public Work").count())
+    
+
+    def test_cant_delete_invalid_slot(self):
+        # Doesn't exist
+        self.check_query_error("""mutation { deleteSlot(id: 5) {
+            success
+        } }""", message="Does not exist")
+
+        # Other user's
+        self.check_query_error("""mutation { deleteSlot(id: 100) {
+            success
+        } }""", message="Does not exist")
+
+        # Last slot
+        Slot.objects.get(id=2).delete()
+        self.check_query_error("""mutation { deleteSlot(id: 1) {
+            success
+        } }""", message="at least one slot")
+    
+
+    def test_slot_deletion_protection(self):
+        del self.client.headers["Authorization"]
+        self.check_query_error(
+            """mutation { deleteSlot(id: 1) { success } }""", message="Not authorized"
+        )
