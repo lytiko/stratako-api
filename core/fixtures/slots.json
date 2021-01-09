@@ -1,0 +1,29 @@
+[
+    {
+        "model": "core.Slot",
+        "pk": 1,
+        "fields": {
+            "name": "Public Work",
+            "order": 1,
+            "user": 1
+        }
+    },
+    {
+        "model": "core.Slot",
+        "pk": 2,
+        "fields": {
+            "name": "Private Work",
+            "order": 2,
+            "user": 1
+        }
+    },
+    {
+        "model": "core.Slot",
+        "pk": 100,
+        "fields": {
+            "name": "Personal",
+            "order": 1,
+            "user": 2
+        }
+    }
+]

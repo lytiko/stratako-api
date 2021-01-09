@@ -10,7 +10,7 @@ from core.models import User
 class FunctionalTest(StaticLiveServerTestCase):
 
     fixtures = [
-        "users.json"
+        "users.json", "slots.json"
     ]
 
     def setUp(self):
