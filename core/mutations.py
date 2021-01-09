@@ -105,3 +105,21 @@ class DeleteUserMutation(graphene.Mutation):
             user.delete()
             return DeleteUserMutation(success=True)
         raise GraphQLError(json.dumps({"email": ["Invalid or missing token"]}))
+
+
+
+class CreateSlotMutation(graphene.Mutation):
+
+    Arguments = create_mutation_arguments(SlotForm)
+    
+    slot = graphene.Field("core.queries.SlotType")
+
+    def mutate(self, info, **kwargs):
+        if not info.context.user:
+            raise GraphQLError(json.dumps({"error": "Not authorized"}))
+        kwargs["user"] = info.context.user.id
+        form = SlotForm(kwargs)
+        if form.is_valid():
+            form.save()
+            return CreateSlotMutation(slot=form.instance)
+        raise GraphQLError(json.dumps(form.errors))

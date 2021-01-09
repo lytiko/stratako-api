@@ -72,3 +72,17 @@ class UpdatePasswordFormTests(TestCase):
         form = UpdatePasswordForm({"current": "password", "new": "password1"}, instance=john)
         self.assertFalse(form.is_valid())
         self.assertIn("too common", form.errors["new"][0])
+
+
+
+class SlotFormTests(TestCase):
+
+    def test_form_can_create_slot(self):
+        form = SlotForm({"name": "Slot 1", "user": mixer.blend(User).id})
+        self.assertTrue(form.is_valid())
+
+
+    def test_form_can_validate_slot(self):
+        form = SlotForm({"name": "X" * 41, "user": mixer.blend(User).id})
+        self.assertFalse(form.is_valid())
+        self.assertIn("40", form.errors["name"][0])

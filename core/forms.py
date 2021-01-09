@@ -67,3 +67,11 @@ class UpdatePasswordForm(ModelForm):
 
     def save(self):
         self.instance.set_password(self.cleaned_data.get("new"))
+
+
+
+class SlotForm(ModelForm):
+
+    class Meta:
+        model = Slot
+        exclude = ["id", "order"]
