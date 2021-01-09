@@ -3,7 +3,7 @@ import json
 import graphene
 from graphql import GraphQLError
 from django.contrib.auth.hashers import check_password
-from core.models import User
+from core.models import User, Slot
 from core.forms import *
 from core.arguments import create_mutation_arguments
 
@@ -20,6 +20,8 @@ class SignupMutation(graphene.Mutation):
             form.instance.last_login = time.time()
             form.save()
             info.context.refresh_token = form.instance.make_refresh_jwt()
+            Slot.objects.create(name="Work", user=form.instance)
+            Slot.objects.create(name="Personal", user=form.instance)
             return SignupMutation(
                 access_token=form.instance.make_access_jwt(),
                 user=form.instance

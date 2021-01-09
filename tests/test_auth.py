@@ -48,6 +48,11 @@ class SignupTests(FunctionalTest):
         self.assertEqual(payload["sub"], new_user.id)
         self.assertLess(time.time() - payload["iat"], 10)
         self.assertLess(time.time() - payload["expires"] - 31536000, 10)
+
+        # The new user has two slots
+        self.assertEqual(new_user.slots.count(), 2)
+        self.assertEqual(new_user.slots.first().name, "Work")
+        self.assertEqual(new_user.slots.last().name, "Personal")
     
 
     def test_signup_validation(self):
