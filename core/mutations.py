@@ -123,3 +123,44 @@ class CreateSlotMutation(graphene.Mutation):
             form.save()
             return CreateSlotMutation(slot=form.instance)
         raise GraphQLError(json.dumps(form.errors))
+
+
+
+class UpdateSlotMutation(graphene.Mutation):
+
+    Arguments = create_mutation_arguments(SlotForm, edit=True)
+    
+    slot = graphene.Field("core.queries.SlotType")
+
+    def mutate(self, info, **kwargs):
+        if not info.context.user:
+            raise GraphQLError(json.dumps({"error": "Not authorized"}))
+        kwargs["user"] = info.context.user.id
+        slot = info.context.user.slots.filter(id=kwargs["id"])
+        if not slot: raise GraphQLError('{"slot": ["Does not exist"]}')
+        slot = slot.first()
+        form = SlotForm(kwargs, instance=slot)
+        if form.is_valid():
+            form.save()
+            return UpdateSlotMutation(slot=form.instance)
+        raise GraphQLError(json.dumps(form.errors))
+
+
+class MoveSlotMutation(graphene.Mutation):
+
+    class Arguments:
+        id = graphene.ID(required=True)
+        index = graphene.Int(required=True)
+    
+    slot = graphene.Field("core.queries.SlotType")
+    user = graphene.Field("core.queries.UserType")
+
+    def mutate(self, info, **kwargs):
+        if not info.context.user:
+            raise GraphQLError(json.dumps({"error": "Not authorized"}))
+        slot = info.context.user.slots.filter(id=kwargs["id"])
+        if not slot: raise GraphQLError('{"slot": ["Does not exist"]}')
+        slot = slot.first()
+        slot.move_to(kwargs["index"])
+        return MoveSlotMutation(slot=slot, user=slot.user)
+        raise GraphQLError(json.dumps(form.errors))
