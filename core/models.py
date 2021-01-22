@@ -110,3 +110,28 @@ class Slot(RandomIDModel):
             slot.order = i
         Slot.objects.bulk_update(slots, ["order"])
 
+
+
+class Project(RandomIDModel):
+
+    class Meta:
+        db_table = "projects"
+        ordering = ["creation_time"]
+
+    STATUSES = [
+        (1, "Not Started"),
+        (2, "Active"),
+        (3, "Maintenance"),
+        (4, "Completed"),
+        (5, "Abandoned")
+    ]
+
+    name = models.CharField(max_length=100)
+    description = models.TextField(default="")
+    color = models.CharField(max_length=9)
+    status = models.IntegerField(choices=STATUSES, default=2)
+    creation_time = models.IntegerField(default=time.time)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="projects")
+
+    def __str__(self):
+        return self.name
