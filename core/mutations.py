@@ -3,7 +3,7 @@ import json
 import graphene
 from graphql import GraphQLError
 from django.contrib.auth.hashers import check_password
-from core.models import User, Slot
+from core.models import User, Slot, Project
 from core.forms import *
 from core.arguments import create_mutation_arguments
 
@@ -168,6 +168,7 @@ class MoveSlotMutation(graphene.Mutation):
 
 
 class DeleteSlotMutation(graphene.Mutation):
+
     class Arguments:
         id = graphene.ID(required=True)
     
@@ -182,3 +183,21 @@ class DeleteSlotMutation(graphene.Mutation):
             raise GraphQLError('{"slot": ["You must have at least one slot"]}')
         slot = slot.first().delete()
         return DeleteSlotMutation(success=True)
+
+
+
+class CreateProjectMutation(graphene.Mutation):
+
+    Arguments = create_mutation_arguments(ProjectForm)
+    
+    project = graphene.Field("core.queries.ProjectType")
+
+    def mutate(self, info, **kwargs):
+        if not info.context.user:
+            raise GraphQLError(json.dumps({"error": "Not authorized"}))
+        kwargs["user"] = info.context.user.id
+        form = ProjectForm(kwargs)
+        if form.is_valid():
+            form.save()
+            return CreateProjectMutation(project=form.instance)
+        raise GraphQLError(json.dumps(form.errors))

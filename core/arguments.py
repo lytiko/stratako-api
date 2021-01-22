@@ -15,6 +15,7 @@ def create_mutation_arguments(ModelForm, edit=False, ignore=None):
         BooleanField: graphene.Boolean, FloatField: graphene.Float,
         ModelChoiceField: graphene.ID, DateTimeField: graphene.Float,
         DecimalField: graphene.Float, IntegerField: graphene.Int,
+        ModelChoiceField: graphene.Int, TypedChoiceField: graphene.Int
     }
     for name, field in ModelForm.base_fields.items():
         if name not in ignore and (field.__class__ != ModelChoiceField or not edit):

@@ -86,3 +86,23 @@ class SlotFormTests(TestCase):
         form = SlotForm({"name": "X" * 41, "user": mixer.blend(User).id})
         self.assertFalse(form.is_valid())
         self.assertIn("40", form.errors["name"][0])
+
+
+
+class ProjectFormTests(TestCase):
+
+    def test_form_can_create_project(self):
+        form = ProjectForm({
+            "name": "Slot 1", "description": ".", "color": "#ffffff",
+            "status": 1, "user": mixer.blend(User).id
+        })
+        self.assertTrue(form.is_valid())
+
+
+    def test_form_can_validate_project(self):
+        form = ProjectForm({
+            "name": "X" * 101, "description": ".", "color": "#ffffff",
+            "status": 1, "user": mixer.blend(User).id
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn("100", form.errors["name"][0])

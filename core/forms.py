@@ -75,3 +75,11 @@ class SlotForm(ModelForm):
     class Meta:
         model = Slot
         exclude = ["id", "order"]
+
+
+
+class ProjectForm(ModelForm):
+
+    class Meta:
+        model = Project
+        exclude = ["id", "creation_time"]
