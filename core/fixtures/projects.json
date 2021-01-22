@@ -1,0 +1,35 @@
+[
+    {
+        "model": "core.Project",
+        "pk": 1,
+        "fields": {
+            "name": "Get Rescued",
+            "description": "Get everybody home",
+            "color": "#0000ff",
+            "status": 2,
+            "user": 1
+        }
+    },
+    {
+        "model": "core.Project",
+        "pk": 2,
+        "fields": {
+            "name": "Neutralise Others",
+            "description": "",
+            "color": "#ff0000",
+            "status": 1,
+            "user": 1
+        }
+    },
+    {
+        "model": "core.Project",
+        "pk": 3,
+        "fields": {
+            "name": "Infiltrate Camp",
+            "description": "",
+            "color": "#000000",
+            "status": 2,
+            "user": 2
+        }
+    }
+]
