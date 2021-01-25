@@ -16,6 +16,8 @@ class UserCreationTests(TestCase):
         self.assertIsNone(user.last_login)
         self.assertEqual(str(user), "John Locke (john@gmail.com)")
         self.assertEqual(user.password, "")
+        self.assertEqual(user.default_project_grouping, "none")
+        self.assertTrue(user.show_done_projects)
         self.assertLess(abs(time.time() - user.creation_time), 1)
         self.assertNotEqual(user.id, 1)
     

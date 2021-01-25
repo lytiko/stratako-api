@@ -70,6 +70,14 @@ class UpdatePasswordForm(ModelForm):
 
 
 
+class ProjectSettingsForm(ModelForm):
+
+    class Meta:
+        model = User
+        fields = ["default_project_grouping", "show_done_projects"]
+
+
+
 class SlotForm(ModelForm):
 
     class Meta:

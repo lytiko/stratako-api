@@ -15,11 +15,17 @@ class User(RandomIDModel):
         db_table = "users"
         ordering = ["creation_time"]
 
+    PROJECT_GROUPINGS = [
+        ["none", "none"], ["status", "status"]
+    ]
+
     email = models.EmailField(max_length=200, unique=True)
     password = models.CharField(max_length=128)
     last_login = models.IntegerField(null=True, default=None)
     creation_time = models.IntegerField(default=0)
     name = models.CharField(max_length=50)
+    default_project_grouping = models.CharField(max_length=10, choices=PROJECT_GROUPINGS, default="none")
+    show_done_projects = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.name} ({self.email})"

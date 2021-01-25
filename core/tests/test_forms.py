@@ -75,6 +75,17 @@ class UpdatePasswordFormTests(TestCase):
 
 
 
+class ProjectSettingsFormTests(TestCase):
+
+    def test_form_can_edit_project_settings(self):
+        john = mixer.blend(User, email="john@gmail.com")
+        form = ProjectSettingsForm({
+            "show_done_projects": False, "default_project_grouping": "status"
+        })
+        self.assertTrue(form.is_valid())
+
+
+
 class SlotFormTests(TestCase):
 
     def test_form_can_create_slot(self):

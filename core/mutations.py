@@ -95,6 +95,23 @@ class UpdatePasswordMutation(graphene.Mutation):
 
 
 
+class UpdateProjectSettingsMutation(graphene.Mutation):
+
+    Arguments = create_mutation_arguments(ProjectSettingsForm)
+    
+    user = graphene.Field("core.queries.UserType")
+
+    def mutate(self, info, **kwargs):
+        if not info.context.user:
+            raise GraphQLError(json.dumps({"error": "Not authorized"}))
+        form = ProjectSettingsForm(kwargs, instance=info.context.user)
+        if form.is_valid():
+            form.save()
+            return UpdateProjectSettingsMutation(user=form.instance)
+        raise GraphQLError(json.dumps(form.errors))
+
+
+
 class DeleteUserMutation(graphene.Mutation):
 
     success = graphene.Boolean()

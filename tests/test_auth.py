@@ -19,11 +19,14 @@ class SignupTests(FunctionalTest):
         result = self.client.execute("""mutation { signup(
             email: "kate@gmail.com", password: "sw0rdfish123",
             name: "Kate Austen"
-        ) { accessToken user { email name } } }""")
+        ) { accessToken user {
+            email name defaultProjectGrouping showDoneProjects
+        } } }""")
 
         # There's a new user
         self.assertEqual(result["data"]["signup"]["user"], {
-            "email": "kate@gmail.com", "name": "Kate Austen"
+            "email": "kate@gmail.com", "name": "Kate Austen",
+            "defaultProjectGrouping": "none", "showDoneProjects": True
         })
         self.assertEqual(User.objects.count(), users_at_start + 1)
         new_user = User.objects.last()
@@ -348,6 +351,24 @@ class UserModificationTests(TokenFunctionaltest):
         self.check_query_error("""mutation { updateUser(
             email: "jack@island.com", name: "Dr Jack"
         ) { user { email name } } }""", message="Not authorized")
+
+
+
+class ProjectSettingsUpdateTests(TokenFunctionaltest):
+
+    def test_can_update_project_settings(self):
+        # Update settings
+        result = self.client.execute("""mutation { updateProjectSettings(
+            defaultProjectGrouping: "status", showDoneProjects: false
+        ) { user { defaultProjectGrouping showDoneProjects } } }""")
+
+        # Settings are changed
+        self.assertEqual(result["data"], {"updateProjectSettings": {"user": {
+            "defaultProjectGrouping": "status", "showDoneProjects": False
+        }}})
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.default_project_grouping, "status")
+        self.assertFalse(self.user.show_done_projects)
 
 
 

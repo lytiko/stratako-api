@@ -18,7 +18,11 @@ def create_mutation_arguments(ModelForm, edit=False, ignore=None):
         ModelChoiceField: graphene.Int, TypedChoiceField: graphene.Int
     }
     for name, field in ModelForm.base_fields.items():
-        if name not in ignore and (field.__class__ != ModelChoiceField or not edit):
+        if field.__class__ == TypedChoiceField:
+            d[name] = {int: graphene.Int, str: graphene.String}.get(
+                type(field.choices[0][0]), graphene.String
+            )(required=field.required) 
+        elif name not in ignore and (field.__class__ != ModelChoiceField or not edit):
             d[name] = lookup.get(
                 field.__class__, graphene.String
             )(required=field.required)

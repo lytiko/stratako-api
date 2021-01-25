@@ -13,6 +13,7 @@ class UserType(DjangoObjectType):
     slots = graphene.List("core.queries.SlotType")
     project = graphene.Field("core.queries.ProjectType", id=graphene.ID(required=True))
     projects = graphene.List("core.queries.ProjectType")
+    default_project_grouping = graphene.String()
 
     def resolve_slots(self, info, **kwargs):
         return self.slots.all()
