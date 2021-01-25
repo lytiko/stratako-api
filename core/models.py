@@ -119,12 +119,12 @@ class Project(RandomIDModel):
         ordering = ["creation_time"]
 
     STATUSES = [
-        (1, "Not Started"),
-        (2, "Active"),
-        (3, "Maintenance"),
-        (4, "On Hold"),
-        (5, "Completed"),
-        (6, "Abandoned")
+        (1, "Active"),
+        (2, "Maintenance"),
+        (3, "On Hold"),
+        (4, "Not Started"),
+        (5, "Abandoned"),
+        (6, "Completed"),
     ]
 
     name = models.CharField(max_length=100)
