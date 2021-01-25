@@ -122,8 +122,9 @@ class Project(RandomIDModel):
         (1, "Not Started"),
         (2, "Active"),
         (3, "Maintenance"),
-        (4, "Completed"),
-        (5, "Abandoned")
+        (4, "On Hold"),
+        (5, "Completed"),
+        (6, "Abandoned")
     ]
 
     name = models.CharField(max_length=100)

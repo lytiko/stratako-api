@@ -61,7 +61,7 @@ class ProjectMutationTests(TokenFunctionaltest):
         self.assertEqual(Project.objects.count(), projects_at_start)
         self.check_query_error("""mutation { createProject(
             name: "Project 3"
-            description: "3rd project" status: 6 color: "#00ff00"
+            description: "3rd project" status: 7 color: "#00ff00"
         ) { project { name description color status } } }""", message="valid")
         self.assertEqual(Project.objects.count(), projects_at_start)
     
