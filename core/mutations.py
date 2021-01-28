@@ -218,3 +218,41 @@ class CreateProjectMutation(graphene.Mutation):
             form.save()
             return CreateProjectMutation(project=form.instance)
         raise GraphQLError(json.dumps(form.errors))
+
+
+
+class UpdateProjectMutation(graphene.Mutation):
+
+    Arguments = create_mutation_arguments(ProjectForm, edit=True)
+    
+    project = graphene.Field("core.queries.ProjectType")
+
+    def mutate(self, info, **kwargs):
+        if not info.context.user:
+            raise GraphQLError(json.dumps({"error": "Not authorized"}))
+        kwargs["user"] = info.context.user.id
+        project = info.context.user.projects.filter(id=kwargs["id"])
+        if not project: raise GraphQLError('{"project": ["Does not exist"]}')
+        project = project.first()
+        form = ProjectForm(kwargs, instance=project)
+        if form.is_valid():
+            form.save()
+            return UpdateProjectMutation(project=form.instance)
+        raise GraphQLError(json.dumps(form.errors))
+
+
+
+class DeleteProjectMutation(graphene.Mutation):
+
+    class Arguments:
+        id = graphene.ID(required=True)
+    
+    success = graphene.Boolean()
+
+    def mutate(self, info, **kwargs):
+        if not info.context.user:
+            raise GraphQLError('{"user": "Not authorized"}')
+        project = info.context.user.projects.filter(id=kwargs["id"])
+        if not project: raise GraphQLError('{"project": ["Does not exist"]}')
+        project = project.first().delete()
+        return DeleteProjectMutation(success=True)
