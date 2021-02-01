@@ -138,7 +138,42 @@ class Project(RandomIDModel):
     color = models.CharField(max_length=9)
     status = models.IntegerField(choices=STATUSES, default=2)
     creation_time = models.IntegerField(default=time.time)
+    category = models.ForeignKey("core.ProjectCategory", default=None, blank=True, null=True, on_delete=models.SET_NULL, related_name="projects")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="projects")
 
     def __str__(self):
         return self.name
+
+
+
+class ProjectCategory(RandomIDModel):
+
+    class Meta:
+        db_table = "project_categories"
+        ordering = ["order"]
+    
+    name = models.CharField(max_length=40)
+    order = models.IntegerField(null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="project_categories")
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        """If no order is given, count the number of categories in the
+        containing user and add one."""
+        
+        if self.order is None:
+            self.order = self.user.project_categories.count() + 1
+        super(ProjectCategory, self).save(*args, **kwargs)
+    
+
+    def move_to(self, index):
+        """Moves a project category to a new position within the containing
+        user."""
+
+        categories = list(self.user.project_categories.exclude(id=self.id))
+        categories.insert(index, self)
+        for i, category in enumerate(categories, start=1):
+            category.order = i
+        ProjectCategory.objects.bulk_update(categories, ["order"])

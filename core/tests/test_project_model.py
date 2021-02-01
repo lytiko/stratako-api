@@ -11,6 +11,7 @@ class ProjectCreationTests(TestCase):
         )
         self.assertNotEqual(project.id, 1)
         self.assertLess(abs(project.creation_time), time.time())
+        self.assertIsNone(project.category)
         project.full_clean()
 
 
